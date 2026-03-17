@@ -1,0 +1,97 @@
+# ==============================
+# General settings
+# ==============================
+
+name: EFNet_highrev_test
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+print_flops: true
+flops_input_shape:
+  - [3, 256, 256]   # image
+  - [6, 256, 256]   # event voxel
+
+
+# ==============================
+# Dataset
+# ==============================
+
+datasets:
+  test:
+    name: HighREV_val
+    type: NpzPngSingleDeblurDataset
+
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/val
+
+    voxel_bins: 6
+    gt_size: ~              # ❗ disables cropping
+    norm_voxel: true
+
+    io_backend:
+      type: disk
+
+    use_hflip: false
+    use_rot: false
+
+
+dataset_name: HighREV
+
+
+# ==============================
+# Network
+# ==============================
+
+network_g:
+  type: EFNet
+  wf: 64
+  fuse_before_downsample: true
+
+
+# ==============================
+# Paths
+# ==============================
+
+path:
+  results_root: ./results
+  log: ./results
+
+  pretrain_network_g: experiments/EFNet_highrev_single_deblur_debug/models/net_g_48.pth
+  strict_load_g: true
+
+  resume_state: ~
+  root: ./experiments/EFNet_highrev_single_deblur_debug/
+
+
+# ==============================
+# Validation / Testing
+# ==============================
+
+val:
+  save_img: true        # ✅ must be TRUE for submission images
+  grids: ~
+
+  crop_size: ~         # ❗ VERY IMPORTANT → no cropping
+
+  rgb2bgr: false
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+
+# ==============================
+# Distributed (leave unchanged)
+# ==============================
+
+dist_params:
+  backend: nccl
+  port: 29500

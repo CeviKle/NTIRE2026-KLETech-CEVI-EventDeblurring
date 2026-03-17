@@ -1,0 +1,65 @@
+# general settings
+name: EFNet_highrev_single_deblur_test
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+
+datasets:
+  test:
+    name: HighREV_val
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/val
+
+    io_backend:
+      type: disk
+
+    phase: val
+    gt_size: 256
+    voxel_bins: 6
+    norm_voxel: true
+    scale: 1
+
+    # REQUIRED keys (even if false)
+    use_hflip: false
+    use_rot: false
+
+    use_shuffle: false
+    num_worker_per_gpu: 3
+    batch_size_per_gpu: 1
+
+dataset_name: HighREV
+
+
+# network
+network_g:
+  type: EFNet
+  wf: 64
+  fuse_before_downsample: true
+
+
+# paths — load your trained checkpoint
+path:
+  pretrain_network_g: experiments/EFNet_highrev_single_deblur/models/net_g_20000.pth
+  strict_load_g: true
+
+
+# no training section needed in test
+train: {}
+
+
+# validation output
+val:
+  save_img: true
+
+
+# logging (simple)
+logger:
+  print_freq: 100
+  use_tb_logger: false
+
+
+dist_params:
+  backend: nccl
+  port: 29500

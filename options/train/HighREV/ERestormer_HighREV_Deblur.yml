@@ -1,0 +1,125 @@
+# =========================
+# General settings
+# =========================
+name: ERestormer_highrev_single_deblur_v2
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+
+# =========================
+# Dataset
+# =========================
+datasets:
+  train:
+    name: HighREV_train
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/train
+
+    io_backend:
+      type: disk
+
+    phase: train
+    gt_size: 384
+    use_hflip: true
+    use_rot: true
+    scale: 1
+
+    use_shuffle: true
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 4
+    dataset_enlarge_ratio: 1
+
+    prefetch_mode: ~
+    pin_memory: false
+    persistent_workers: false
+    timeout: 0
+    max_retries: 20
+    data_fetch_retries: 20
+
+
+dataset_name: HighREV
+
+
+# =========================
+# ERestormer Architecture
+# =========================
+network_g:
+  type: ERestormer
+  inp_channels: 6
+  out_channels: 3
+  dim: 64
+  num_blocks: 8
+
+
+# =========================
+# Paths
+# =========================
+path:
+  root: .
+
+  experiments_root: experiments/ERestormer_highrev_single_deblur_v2
+  models: experiments/ERestormer_highrev_single_deblur_v2/models
+  training_states: experiments/ERestormer_highrev_single_deblur_v2/training_states
+  log: experiments/ERestormer_highrev_single_deblur_v2
+  visualization: experiments/ERestormer_highrev_single_deblur_v2/visualization
+
+  # load weights from your 100k checkpoint
+  pretrain_network_g: experiments/ERestormer_highrev_single_deblur_v2/models/net_g_400000.pth
+  resume_state: experiments/ERestormer_highrev_single_deblur_v2/training_states/400000.state
+
+  # allow loading even if architecture slightly changed
+  strict_load_g: false
+
+
+# =========================
+# Training
+# =========================
+train:
+  use_amp: true
+
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: !!float 1e-4
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 800000
+    eta_min: !!float 1e-7
+
+  total_iter: 800000
+  warmup_iter: -1
+
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+
+# =========================
+# Validation
+# =========================
+val:
+  val_freq: 1000000000
+  save_img: false
+
+
+# =========================
+# Logging
+# =========================
+logger:
+  print_freq: 200
+  save_checkpoint_freq: 1000
+  use_tb_logger: true
+  wandb: {}
+
+
+# =========================
+# Distributed
+# =========================
+dist_params:
+  backend: nccl
+  port: 29500

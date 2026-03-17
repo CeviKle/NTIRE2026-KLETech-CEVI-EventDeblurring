@@ -1,0 +1,111 @@
+# general settings
+name: ERestormer_HighREV_Deblur
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+
+datasets:
+  train:
+    name: HighREV_train
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/train
+
+    io_backend:
+      type: disk
+
+    phase: train
+    gt_size: 256
+    voxel_bins: 6
+    norm_voxel: true
+    use_hflip: true
+    use_rot: true
+    scale: 1
+
+    # dataloader (MEMORY SAFE)
+    use_shuffle: true
+    num_worker_per_gpu: 0
+    batch_size_per_gpu: 2
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~        
+    pin_memory: false
+    persistent_workers: false
+    timeout: 0
+    max_retries: 20
+    data_fetch_retries: 20
+
+
+dataset_name: HighREV
+
+
+# =========================
+# NEW SOTA TRANSFORMER
+# =========================
+network_g:
+  type: ERestormer
+  inp_channels: 6
+  out_channels: 3
+  dim: 48
+  num_blocks: [4, 6, 6, 8]
+  num_refinement_blocks: 4
+  heads: [1, 2, 4, 8]
+  ffn_expansion_factor: 2.66
+  bias: false
+  LayerNorm_type: WithBias
+
+
+# paths
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+  training_states: ~
+
+
+# =========================
+# training settings
+# =========================
+train:
+  use_amp: true
+
+  optim_g:
+    type: AdamW
+    lr: !!float 2e-4
+    weight_decay: !!float 1e-4
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 200000
+    eta_min: !!float 1e-7
+
+  total_iter: 60000
+  warmup_iter: -1
+
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+
+# validation disabled
+val: ~
+  val_freq: 1000000000
+  save_img: false
+
+
+# =========================
+# logging + checkpoints
+# =========================
+logger:
+  print_freq: 200          # ✅ cleaner logs
+  save_checkpoint_freq: 5000
+  use_tb_logger: true
+  wandb: {}
+
+
+# distributed
+dist_params:
+  backend: nccl
+  port: 29500

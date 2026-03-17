@@ -1,0 +1,51 @@
+name: NAFNet_ImageOnly_test200k
+model_type: ImageRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  test:
+    name: HighREV_test
+    type: PairedImageDataset
+    dataroot_lq: /NTIRE2026/C20_EventDeblur/test_data/HighREV_test/HighREV_test/blur
+
+    io_backend:
+      type: disk
+
+    phase: test
+    num_worker_per_gpu: 1
+    batch_size_per_gpu: 1
+    scale: 1
+
+network_g:
+  type: NAFNet
+  img_channel: 3
+  width: 64
+  middle_blk_num: 1
+  enc_blk_nums: [1,1,1,28]
+  dec_blk_nums: [1,1,1,1]
+
+path:
+  pretrain_network_g: ./experiments/NAFNet_ImageOnly/models/net_g_200000.pth
+  strict_load_g: true
+
+  results_root: ./results/NAFNet_ImageOnly_test200k
+  log: ./results/NAFNet_ImageOnly_test200k
+  visualization: ./results/NAFNet_ImageOnly_test200k/visualization
+
+train: {}
+
+val:
+  save_img: true
+  tile: 512
+  tile_overlap: 32
+  self_ensemble: false
+
+logger:
+  print_freq: 100
+  use_tb_logger: false
+
+dist_params:
+  backend: nccl
+  port: 29500

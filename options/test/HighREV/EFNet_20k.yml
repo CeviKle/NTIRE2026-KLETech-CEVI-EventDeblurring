@@ -1,0 +1,54 @@
+name: EFNet_20k_test
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  test:
+    name: HighREV_val
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/val
+
+    io_backend:
+      type: disk
+
+    phase: test
+    gt_size: 0
+    voxel_bins: 6
+    norm_voxel: true
+    scale: 1
+
+    use_hflip: false
+    use_rot: false
+    use_shuffle: false
+    num_worker_per_gpu: 0
+    batch_size_per_gpu: 1
+
+dataset_name: HighREV
+
+network_g:
+  type: EFNet
+  wf: 64
+  fuse_before_downsample: true
+
+path:
+  pretrain_network_g: ./experiments/EFNet_highrev_single_deblur/models/net_g_20000.pth
+  strict_load_g: true
+  root: ./
+  results_root: ./results/EFNet_20k_test
+  log: ./results/EFNet_20k_test
+  visualization: ./results/EFNet_20k_test/visualization
+
+train: {}
+
+val:
+  save_img: true
+
+logger:
+  print_freq: 100
+  use_tb_logger: false
+
+dist_params:
+  backend: nccl
+  port: 29500

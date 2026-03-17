@@ -1,0 +1,120 @@
+# general settings
+name: EFNet_home_run1
+model_type: ImageEventRestorationModel
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  train:
+    name: highrev-train
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/train
+
+    voxel_bins: 6
+    gt_size: 128
+    norm_voxel: true
+    use_hflip: true
+    use_rot: true
+    fp16: true
+
+    filename_tmpl: '{}'
+    io_backend:
+      type: disk
+
+    use_shuffle: true
+    num_worker_per_gpu: 1
+    batch_size_per_gpu: 1
+    dataset_enlarge_ratio: 4
+    prefetch_mode: cpu
+    num_prefetch_queue: 2
+
+  val:
+    name: highrev-val
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/val
+    voxel_bins: 6
+    gt_size: ~
+    norm_voxel: true
+
+    io_backend:
+      type: disk
+
+    use_hflip: false
+    use_rot: false
+
+dataset_name: HighREV
+
+
+# network
+network_g:
+  type: EFNet
+  wf: 64
+  fuse_before_downsample: true
+
+
+
+path:
+  experiments_root: /home/dheeraj/ntire_experiments
+  models: /home/dheeraj/ntire_experiments/models
+  training_states: /home/dheeraj/ntire_experiments/training_states
+  log: /home/dheeraj/ntire_experiments/logs
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+
+
+
+# training
+train:
+  optim_g:
+    type: AdamW
+    lr: 2e-4
+    weight_decay: 1e-4
+    betas: [0.9, 0.99]
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 200000
+    eta_min: 1e-7
+
+  total_iter: 200000
+  warmup_iter: -1
+
+  pixel_opt:
+    type: PSNRLoss
+    loss_weight: 0.5
+    reduction: mean
+
+
+# validation
+val:
+  val_freq: 500
+  save_img: false
+  grids: ~
+  crop_size: ~
+  max_minibatch: 8
+
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+
+# logging  (NO W&B — FIXED)
+logger:
+  print_freq: 50
+  save_checkpoint_freq: 1000
+  use_tb_logger: false
+
+
+# distributed
+dist_params:
+  backend: nccl
+  port: 29500

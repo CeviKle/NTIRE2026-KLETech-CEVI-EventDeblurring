@@ -1,0 +1,83 @@
+name: NAFNet_ImageOnly
+model_type: ImageEventRestorationModel
+
+path:
+  root: .
+  pretrain_network_g: experiments/NAFNet_ImageOnly/models/net_g_600000.pth
+  path:
+  resume_state: /NTIRE2026/.../training_states/600000.state
+
+  experiments_root: experiments/NAFNet_ImageOnly
+  models: experiments/NAFNet_ImageOnly/models
+  training_states: experiments/NAFNet_ImageOnly/training_states
+  log: experiments/NAFNet_ImageOnly
+  visualization: experiments/NAFNet_ImageOnly/visualization
+
+scale: 1
+num_gpu: 1
+manual_seed: 10
+
+datasets:
+  train:
+    name: HighREV_train
+    type: NpzPngSingleDeblurDataset
+    dataroot: /NTIRE2026/C20_EventDeblur/HighREV/train
+    io_backend:
+      type: disk
+
+    # safer patch size (512 may crash)
+    gt_size: 384
+
+    use_hflip: True
+    use_rot: True
+
+    # stable batch size
+    batch_size_per_gpu: 4
+
+    num_worker_per_gpu: 4
+
+
+network_g:
+  type: NAFNet
+  img_channel: 3
+  width: 64
+  middle_blk_num: 1
+  enc_blk_nums: [1,1,1,28]
+  dec_blk_nums: [1,1,1,1]
+
+
+train:
+  use_amp: true
+
+  optim_g:
+    type: AdamW
+    lr: !!float 1e-4
+    weight_decay: !!float 1e-4
+
+  # main pixel loss
+  pixel_opt:
+    type: CharbonnierLoss
+    loss_weight: 1.0
+
+  # structural sharpness
+  ssim_opt:
+    type: SSIMLoss
+    loss_weight: 0.2
+
+  # edge sharpening
+  edge_opt:
+    type: EdgeLoss
+    loss_weight: 0.05
+
+  # continue training
+  total_iter: 800000
+
+  scheduler:
+    type: TrueCosineAnnealingLR
+    T_max: 800000
+
+
+logger:
+  print_freq: 200
+  save_checkpoint_freq: 1000
+  use_tb_logger: false
