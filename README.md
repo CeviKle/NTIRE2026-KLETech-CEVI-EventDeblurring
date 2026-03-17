@@ -2,8 +2,7 @@
 
 ## Team Information
 
-**Team Name:** KLETech-CEVI-ALN
-**Members:** Soumya Suryavanshi, Saiprasad Meesiyawar, Nikhil Neelkanth Akalwadi
+**Team Name:** KLETech-CEVI
 
 ---
 
