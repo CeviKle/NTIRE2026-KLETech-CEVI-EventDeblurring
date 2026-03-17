@@ -11,7 +11,7 @@
 This repository presents our solution for the **NTIRE 2026 Event-Based Image Deblurring Challenge**.
 The objective of this challenge is to recover sharp images from motion-blurred inputs by leveraging both conventional RGB frames and event data.
 
-Our approach builds upon a **NAFNet-based architecture**, enhanced to incorporate event information for improved deblurring performance.
+Our approach is based on a **NAFNet architecture**, adapted to incorporate event information for improved deblurring performance.
 
 ---
 
@@ -22,27 +22,32 @@ We adopt a hybrid framework combining:
 * Image-based restoration using **NAFNet**
 * Event-guided enhancement using voxelized event representations
 
-### Key Features:
+### Key Features
 
 * Encoder–Decoder architecture
 * Residual learning blocks
 * Event-image fusion mechanism
 * Multi-scale feature extraction
 
-The model effectively utilizes complementary information from event streams to improve restoration quality in challenging motion scenarios.
+The proposed model effectively utilizes complementary information from event streams to improve restoration quality under challenging motion conditions.
 
 ---
 
 ## 3. Repository Structure
 
-```
+```id="finalstruct1"
 .
 ├── basicsr/                # Core training and testing framework
 ├── datasets/               # Dataset configuration files
 ├── options/                # YAML config files (train/test)
 ├── scripts/                # Data preparation & utilities
 ├── figs/                   # Figures and visualizations
-├── requirements.txt        # Dependencies
+├── requirements.txt        # Python dependencies
+├── setup.py                # Package installation script
+├── setup.cfg               # Package configuration
+├── .gitignore              # Git ignore rules
+├── LICENSE                 # License information
+├── VERSION                 # Version file
 ├── README.md               # Project documentation
 ```
 
@@ -52,14 +57,14 @@ The model effectively utilizes complementary information from event streams to i
 
 ### Step 1: Create Conda Environment
 
-```bash
+```bash id="finalenv1"
 conda create -n ntire python=3.8 -y
 conda activate ntire
 ```
 
 ### Step 2: Install Dependencies
 
-```bash
+```bash id="finalenv2"
 pip install -r requirements.txt
 ```
 
@@ -67,9 +72,9 @@ pip install -r requirements.txt
 
 ## 5. Dataset Preparation
 
-Ensure the dataset follows this structure:
+Ensure the dataset follows the structure:
 
-```
+```id="finaldata1"
 HighREV_test/
 ├── blur/
 ├── event/
@@ -78,7 +83,7 @@ HighREV_test/
 
 Update dataset paths in:
 
-```
+```id="finaldata2"
 options/test/HighREV/
 options/train/HighREV/
 ```
@@ -89,7 +94,7 @@ options/train/HighREV/
 
 To train the model, run:
 
-```bash
+```bash id="finaltrain"
 python basicsr/train.py -opt options/train/HighREV/NAFNet_ImageOnly.yml
 ```
 
@@ -99,7 +104,7 @@ python basicsr/train.py -opt options/train/HighREV/NAFNet_ImageOnly.yml
 
 To perform testing or generate submission results:
 
-```bash
+```bash id="finaltest"
 python basicsr/test.py -opt options/test/HighREV/NAFNet_200k_test.yml
 ```
 
@@ -107,7 +112,7 @@ python basicsr/test.py -opt options/test/HighREV/NAFNet_200k_test.yml
 
 ## 8. Validation
 
-Validation is performed during training automatically based on the configuration file.
+Validation is performed during training based on the configuration file.
 
 **Metrics used:**
 
@@ -124,7 +129,7 @@ The pretrained model weights can be downloaded from:
 
 After downloading, place the weights in:
 
-```
+```id="finalweights"
 experiments/NAFNet_ImageOnly/models/
 ```
 
@@ -136,13 +141,13 @@ The generated results for the NTIRE 2026 submission can be accessed here:
 
 👉 https://drive.google.com/drive/folders/1OkeP6q4BmpUEzVuLJjXPr3Qw2PekVyrO?usp=drive_link
 
-These results correspond to the restored output images obtained on the test dataset.
+These correspond to the restored output images obtained on the test dataset.
 
 ---
 
 ## 11. Important Notes
 
-* Ensure dataset paths are correctly configured before running
+* Ensure dataset paths are correctly configured before execution
 * GPU is recommended for faster training and inference
 * Tested on CUDA-enabled systems
 * Large files (logs, checkpoints) are excluded via `.gitignore`
@@ -163,12 +168,12 @@ Steps to reproduce results:
 
 ## 13. Acknowledgements
 
-This work is built upon:
+This work is based on:
 
 * BasicSR framework
 * NAFNet architecture
 
-We thank the NTIRE organizers for the challenge and dataset.
+We thank the NTIRE organizers for providing the dataset and evaluation platform.
 
 ---
 
