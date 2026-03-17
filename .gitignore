@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+*.log
+wandb/
+experiments/
+results/
+build/
+*.egg-info/
+.DS_Store
